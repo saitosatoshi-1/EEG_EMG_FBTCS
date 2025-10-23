@@ -50,3 +50,9 @@ This project is released under the MIT License (see `LICENSE`).
 If you use this code, please cite:  
 Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H.  
 *Epilepsy Research* (2025).
+
+---
+
+### 📘 Zenodo DOI
+[![DOI](https://zenodo.org/badge/1081201518.svg)](https://doi.org/10.5281/zenodo.17421105)
+
