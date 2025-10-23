@@ -29,7 +29,7 @@ pip install -r requirements.txt
 
 ---
 
-🧩 Code structure
+### 🧩 Code structure
 
 `code/eeg_edf_utils.py`	
 EDF loader and preprocessing utilities (channel renaming, notch/high-pass, cropping).
@@ -53,7 +53,8 @@ Each file contains only analysis logic — no plotting or I/O — for safe, full
 
 ---
 
-💻 Example usage
+### 💻 Example usage
+
 1. Compute PSD shape correlation
 
 ```python
@@ -82,25 +83,28 @@ print(m)
 
 ---
 
-📂 Data availability
+### 📂 Data availability
 
 No real EEG or EMG data are included in this repository due to patient confidentiality.
 All analysis scripts are fully executable using any EEG/EMG dataset in CSV or EDF format that follows the same channel structure and sampling frequency described in the manuscript.
 
 ---
 
-🧾 Ethical statement
+### 🧾 Ethical statement
+
 All data analyzed in the study were fully anonymized before processing.
 The study was approved by the Institutional Review Board of the National Center of Neurology and Psychiatry (NCNP, approval A2025-037).
 
 ---
 
-📜 License
+### 📜 License
+
 This project is released under the MIT License (see LICENSE).
 
 ---
 
-📚 Citation
+### 📚 Citation
+
 If you use this code, please cite:
 Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H.
 Electromyographic components contaminating the scalp EEG during focal to bilateral tonic–clonic seizures as potential markers for seizure detection and lateralization: an exploratory study.
@@ -108,5 +112,6 @@ Epilepsy Research (2025).
 
 ---
 
-📘 Zenodo DOI
+### 📘 Zenodo DOI
+
 https://doi.org/10.5281/zenodo.17421105
