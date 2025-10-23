@@ -40,6 +40,8 @@ __all__ = [
 ]
 
 
+
+
 # ---------------------------------------------------------------------
 # Step 1: Prepare CAR (EEG pick -> normalize -> montage -> valid coords -> CAR)
 # ---------------------------------------------------------------------
@@ -127,6 +129,9 @@ def clean_eeg_make_car(
     return raw_car, tuple(raw_car.ch_names)
 
 
+
+
+
 # ---------------------------------------------------------------------
 # Step 2: Compute CSD (from CAR). Graceful fallback on failure.
 # ---------------------------------------------------------------------
@@ -163,6 +168,9 @@ def compute_csd(
         return None
 
 
+
+
+
 # ---------------------------------------------------------------------
 # Backward-compatible wrapper (CAR + CSD)
 # ---------------------------------------------------------------------
@@ -187,6 +195,8 @@ def prepare_car_csd(
     )
     raw_csd = compute_csd(raw_car, csd_kwargs=csd_kwargs, verbose=verbose)
     return raw_car, raw_csd, used
+
+
 
 
 # ---------------------------------------------------------------------
@@ -246,6 +256,8 @@ def get_cz_bipolar(raw_car: mne.io.BaseRaw, ch_name: str, cz_name: str = "Cz") -
     return sig.astype(np.float32)
 
 
+
+
 # ---------------------------------------------------------------------
 # Build channel dictionaries robustly
 # ---------------------------------------------------------------------
@@ -284,6 +296,9 @@ def make_eeg_dict(
             "Check 'target_chs' against 'raw_obj.ch_names'."
         )
     return out
+
+
+
 
 
 # ---------------------------------------------------------------------
