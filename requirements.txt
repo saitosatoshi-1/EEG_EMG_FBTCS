@@ -1,5 +1,7 @@
-numpy>=1.26
-scipy>=1.16
-pandas>=2.2
-matplotlib>=3.9
-mne>=1.9
+# Analysis environment used in Saito et al., Epilepsy Research (2025)
+# Python version: 3.11
+numpy==1.26
+scipy==1.13
+pandas==2.2
+matplotlib==3.8
+mne==1.8
