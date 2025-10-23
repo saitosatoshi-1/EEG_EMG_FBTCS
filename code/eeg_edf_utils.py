@@ -63,18 +63,21 @@ def normalize_channel_names(raw: mne.io.BaseRaw) -> None:
         raw.rename_channels(rename_map)
 
 
-def set_emg_types(raw: mne.io.BaseRaw, emg_names: list[str]) -> None:
+def set_emg_types(raw: mne.io.BaseRaw, emg_names: list[str] | None = None) -> None:
     """
-    Mark listed channels as EMG type if they exist.
+    Mark EMG channels (e.g., X5, X7, or Deltoid) as 'emg' type if present.
 
     Parameters
     ----------
-    emg_names : list of str
-        Channel names to mark as EMG.
+    emg_names : list of str or None
+        Channel names to mark as EMG. If None, try to detect automatically.
     """
+    if emg_names is None:
+        emg_names = [ch for ch in raw.ch_names if any(k in ch.upper() for k in ["X", "EMG", "DELTOID"])]
     to_emg = {ch: "emg" for ch in emg_names if ch in raw.ch_names}
     if to_emg:
         raw.set_channel_types(to_emg)
+        print(f"Set as EMG: {list(to_emg.keys())}")
 
 
 # ---------------------------------------------------------------------
@@ -123,6 +126,8 @@ def crop_by_time(raw: mne.io.BaseRaw, t_start: float | None, t_end: float | None
 # ---------------------------------------------------------------------
 # 4. Data extraction
 # ---------------------------------------------------------------------
+import numpy as np
+
 def get_uv(raw: mne.io.BaseRaw, ch_list: list[str]) -> dict[str, np.ndarray]:
     """
     Return specified channels as microvolt (µV) arrays.
