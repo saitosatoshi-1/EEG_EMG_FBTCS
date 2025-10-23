@@ -30,7 +30,7 @@ from mne.preprocessing import compute_current_source_density
 
 
 __all__ = [
-    "prepare_car",
+    "clean_eeg_make_car",
     "compute_csd",
     "prepare_car_csd",  # thin wrapper for backward-compat
     "get_car_signal",
@@ -43,7 +43,7 @@ __all__ = [
 # ---------------------------------------------------------------------
 # Step 1: Prepare CAR (EEG pick -> normalize -> montage -> valid coords -> CAR)
 # ---------------------------------------------------------------------
-def prepare_car(
+def clean_eeg_make_car(
     raw: mne.io.BaseRaw,
     *,
     exclude_chs: Iterable[str] = ("A1", "A2", "T1", "T2", "M1", "M2"),
@@ -114,7 +114,7 @@ def prepare_car(
 
     if len(valid) < 16 and verbose:
         print(
-            f"[prepare_car] Warning: only {len(valid)} channels have valid coordinates; "
+            f"[clean_eeg_make_car] Warning: only {len(valid)} channels have valid coordinates; "
             "CSD may be unstable."
         )
 
@@ -122,7 +122,7 @@ def prepare_car(
     raw_car.set_eeg_reference(ref_channels="average", projection=False)
 
     if verbose:
-        print("[prepare_car] CAR channels:", ", ".join(raw_car.ch_names))
+        print("[clean_eeg_make_car] CAR channels:", ", ".join(raw_car.ch_names))
 
     return raw_car, tuple(raw_car.ch_names)
 
@@ -178,7 +178,7 @@ def prepare_car_csd(
     """
     Convenience wrapper: prepare CAR, then attempt CSD.
     """
-    raw_car, used = prepare_car(
+    raw_car, used = clean_eeg_make_car(
         raw,
         exclude_chs=exclude_chs,
         montage=montage,
