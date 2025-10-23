@@ -30,7 +30,9 @@ from mne.preprocessing import compute_current_source_density
 
 
 __all__ = [
-    "prepare_car_csd",
+    "prepare_car",
+    "compute_csd",
+    "prepare_car_csd",  # thin wrapper for backward-compat
     "get_car_signal",
     "get_csd_signal",
     "get_cz_bipolar",
@@ -39,42 +41,37 @@ __all__ = [
 
 
 # ---------------------------------------------------------------------
-# Core preparation: CAR & CSD
+# Step 1: Prepare CAR (EEG pick -> normalize -> montage -> valid coords -> CAR)
 # ---------------------------------------------------------------------
-def prepare_car_csd(
+def prepare_car(
     raw: mne.io.BaseRaw,
     *,
     exclude_chs: Iterable[str] = ("A1", "A2", "T1", "T2", "M1", "M2"),
     montage: str = "standard_1020",
     apply_10_20_alias: bool = True,
-    csd_kwargs: Optional[dict] = None,
     verbose: bool = True,
-) -> Tuple[mne.io.BaseRaw, Optional[mne.io.BaseRaw], Tuple[str, ...]]:
+) -> Tuple[mne.io.BaseRaw, Tuple[str, ...]]:
     """
-    Create CAR-referenced EEG and (optionally) its CSD transform.
+    Prepare a CAR-referenced EEG Raw.
 
-    Steps
-    -----
+    Pipeline
+    --------
     1) Pick EEG channels only, drop 'bads' if present.
     2) Normalize channel names, optionally alias 10-10 to 10-20 (e.g., T7->T3).
     3) Attach montage; ignore channels without coordinates.
     4) Keep only channels with valid 3D locations and not in 'exclude_chs'.
     5) Set CAR reference.
-    6) Compute CSD (spherical spline) from CAR; return None if it fails.
 
     Parameters
     ----------
     raw : mne.io.BaseRaw
         Input Raw.
     exclude_chs : Iterable[str]
-        Channels to exclude from CAR/CSD (e.g., mastoids without standard coords).
+        Channels to exclude from CAR (e.g., mastoids without standard coords).
     montage : str
         Montage name accepted by MNE (e.g., 'standard_1020').
     apply_10_20_alias : bool
         If True, alias some 10-10 labels to 10-20 equivalents (T7->T3, T8->T4, P7->T5, P8->T6).
-    csd_kwargs : dict or None
-        Keyword arguments for `mne.preprocessing.compute_current_source_density`,
-        e.g., dict(lambda2=1e-5, stiffness=4, n_legendre_terms=50).
     verbose : bool
         If True, print brief info.
 
@@ -82,17 +79,9 @@ def prepare_car_csd(
     -------
     raw_car : mne.io.BaseRaw
         EEG-only Raw with CAR applied.
-    raw_csd : mne.io.BaseRaw or None
-        CSD-transformed Raw; None if CSD computation failed or insufficient electrodes.
     used_chs : tuple of str
-        Channel names included in CAR (and attempted in CSD).
-
-    Notes
-    -----
-    - CSD requires spatial adjacency; with very few valid electrodes (<~16), results may be unstable.
+        Channel names used in CAR.
     """
-    csd_kwargs = csd_kwargs or dict(lambda2=1e-5, stiffness=4, n_legendre_terms=50)
-
     # EEG only, drop 'bads'
     raw_car = raw.copy().pick_types(eeg=True, eog=False, emg=False, meg=False)
     bads = set(getattr(raw, "info", {}).get("bads", []) or [])
@@ -125,7 +114,7 @@ def prepare_car_csd(
 
     if len(valid) < 16 and verbose:
         print(
-            f"[prepare_car_csd] Warning: only {len(valid)} channels have valid coordinates; "
+            f"[prepare_car] Warning: only {len(valid)} channels have valid coordinates; "
             "CSD may be unstable."
         )
 
@@ -133,18 +122,71 @@ def prepare_car_csd(
     raw_car.set_eeg_reference(ref_channels="average", projection=False)
 
     if verbose:
-        print("[prepare_car_csd] CAR channels:", ", ".join(raw_car.ch_names))
+        print("[prepare_car] CAR channels:", ", ".join(raw_car.ch_names))
 
-    # Compute CSD (spherical spline), with graceful fallback
+    return raw_car, tuple(raw_car.ch_names)
+
+
+# ---------------------------------------------------------------------
+# Step 2: Compute CSD (from CAR). Graceful fallback on failure.
+# ---------------------------------------------------------------------
+def compute_csd(
+    raw_car: mne.io.BaseRaw,
+    csd_kwargs: Optional[dict] = None,
+    verbose: bool = True,
+) -> Optional[mne.io.BaseRaw]:
+    """
+    Compute CSD (spherical spline) from a CAR-referenced Raw.
+
+    Parameters
+    ----------
+    raw_car : mne.io.BaseRaw
+        CAR-referenced EEG Raw.
+    csd_kwargs : dict or None
+        Keyword arguments for `mne.preprocessing.compute_current_source_density`,
+        e.g., dict(lambda2=1e-5, stiffness=4, n_legendre_terms=50).
+    verbose : bool
+        If True, print brief info on failure.
+
+    Returns
+    -------
+    raw_csd : mne.io.BaseRaw or None
+        CSD-transformed Raw; None if computation fails.
+    """
+    csd_kwargs = csd_kwargs or dict(lambda2=1e-5, stiffness=4, n_legendre_terms=50)
     try:
-        raw_csd = compute_current_source_density(raw_car.copy(), **csd_kwargs)
+        return compute_current_source_density(raw_car.copy(), **csd_kwargs)
     except Exception as e:
         if verbose:
-            print("[prepare_car_csd] CSD computation failed:", repr(e))
+            print("[compute_csd] CSD computation failed:", repr(e))
             print("  → Check montage/valid channels/exclusions or adjust csd_kwargs.")
-        raw_csd = None
+        return None
 
-    return raw_car, raw_csd, tuple(raw_car.ch_names)
+
+# ---------------------------------------------------------------------
+# Backward-compatible wrapper (CAR + CSD)
+# ---------------------------------------------------------------------
+def prepare_car_csd(
+    raw: mne.io.BaseRaw,
+    *,
+    exclude_chs: Iterable[str] = ("A1", "A2", "T1", "T2", "M1", "M2"),
+    montage: str = "standard_1020",
+    apply_10_20_alias: bool = True,
+    csd_kwargs: Optional[dict] = None,
+    verbose: bool = True,
+) -> Tuple[mne.io.BaseRaw, Optional[mne.io.BaseRaw], Tuple[str, ...]]:
+    """
+    Convenience wrapper: prepare CAR, then attempt CSD.
+    """
+    raw_car, used = prepare_car(
+        raw,
+        exclude_chs=exclude_chs,
+        montage=montage,
+        apply_10_20_alias=apply_10_20_alias,
+        verbose=verbose,
+    )
+    raw_csd = compute_csd(raw_car, csd_kwargs=csd_kwargs, verbose=verbose)
+    return raw_car, raw_csd, used
 
 
 # ---------------------------------------------------------------------
@@ -250,13 +292,14 @@ def make_eeg_dict(
 """
 Example
 -------
->>> # Prepare CAR and CSD:
->>> raw_car, raw_csd, used = prepare_car_csd(
+>>> # Step 1: CAR
+>>> raw_car, used = prepare_car(
 ...     raw, exclude_chs=("A1","A2","T1","T2","M1","M2"),
-...     montage="standard_1020", apply_10_20_alias=True,
-...     csd_kwargs=dict(lambda2=1e-5, stiffness=4, n_legendre_terms=50),
-...     verbose=True,
+...     montage="standard_1020", apply_10_20_alias=True, verbose=True
 ... )
+>>> # Step 2: CSD (optional)
+>>> raw_csd = compute_csd(raw_car, csd_kwargs=dict(lambda2=1e-5, stiffness=4, n_legendre_terms=50))
+>>>
 >>> # Build per-montage dictionaries for typical temporal/occipital channels:
 >>> target = ["Fp1","Fp2","F7","F8","T3","T4","T5","T6","O1","O2"]
 >>> eeg_car = make_eeg_dict(raw_car, target, get_car_signal)
