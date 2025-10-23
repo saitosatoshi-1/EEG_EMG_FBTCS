@@ -18,36 +18,31 @@ Functions include:
 All functions are designed for reproducibility and contain no patient-specific data.
 """
 
-from __future__ import annotations
-from pathlib import Path
-import numpy as np
-import mne
-
 
 # ---------------------------------------------------------------------
 # 1. EDF loading
 # ---------------------------------------------------------------------
-def read_edf(edf_path: str | Path, preload: bool = True) -> mne.io.BaseRaw:
+import mne
+
+def read_edf(edf_path: str, preload: bool = True) -> mne.io.BaseRaw:
     """
-    Safely read an EDF file without exposing header text.
+    Load an EDF file as an MNE Raw object.
 
     Parameters
     ----------
-    edf_path : str or Path
+    edf_path : str
         Path to the EDF file.
-    preload : bool
-        If True, load all data into memory.
+    preload : bool, default True
+        If True, read data into memory (recommended for filtering/cropping).
 
     Returns
     -------
     raw : mne.io.BaseRaw
-        MNE Raw object containing EEG/EMG signals.
+        Continuous EEG/EMG recording. No patient-identifying fields are accessed.
     """
-    edf_path = Path(edf_path).expanduser()
-    if not edf_path.exists():
-        raise FileNotFoundError(f"EDF not found: {edf_path}")
-    raw = mne.io.read_raw_edf(str(edf_path), preload=preload, verbose="ERROR")
+    raw = mne.io.read_raw_edf(edf_path, preload=preload, verbose="ERROR")
     return raw
+
 
 
 # ---------------------------------------------------------------------
