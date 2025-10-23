@@ -23,9 +23,9 @@ All scripts are designed for **reproducibility** and **transparency**, with no p
 
 ### ⚙️ Requirements
 Install dependencies:
-` ```bash
+```bash
 pip install -r requirements.txt
-`
+```
 
 ---
 
@@ -56,29 +56,29 @@ Each file contains only analysis logic — no plotting or I/O — for safe, full
 💻 Example usage
 1. Compute PSD shape correlation
 
-` ```python
+```python
 from eeg_emg_psd_core import compute_psd_shape_corr
 r, p = compute_psd_shape_corr(eeg, emg, sfreq=1000.0, hf_band=(64,256))
 print(r, p)
-`
+```
 
 
 2. Cross-correlation of RMS envelopes
-   
-` ```python
+
+```python
 from eeg_emg_xcorr_core import compute_rms_crosscorr
 res = compute_rms_crosscorr(eeg, emg, sfreq=1000)
 print(res)
-`
+```
 
 
 3. RMS rise-slope metrics
    
-` ```python
+```python
 from eeg_emg_riseslope_core import compute_hf_rms_metrics
 m = compute_hf_rms_metrics(signal, sfreq=1000.0, hf_band=(64,256))
 print(m)
-`
+```
 
 ---
 
