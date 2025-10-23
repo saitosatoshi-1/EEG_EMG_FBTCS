@@ -86,7 +86,6 @@ print(m)
 
 No real EEG or EMG data are included in this repository due to patient confidentiality.
 All analysis scripts are fully executable using any EEG/EMG dataset in CSV or EDF format that follows the same channel structure and sampling frequency described in the manuscript.
-Synthetic or anonymized demonstration data may be made available upon reasonable request.
 
 ---
 
