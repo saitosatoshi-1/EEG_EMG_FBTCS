@@ -142,17 +142,4 @@ def compute_rms_crosscorr(
                 win_sec=win_sec, step_sec=step_sec)
 
 
-# --- Documentation-only example ---
-"""
-Example
--------
->>> import numpy as np
->>> from eeg_emg_xcorr_core import compute_rms_crosscorr
->>> fs = 1000
->>> t = np.arange(0, 10, 1/fs)
->>> eeg = np.sin(2*np.pi*10*t) + 0.3*np.random.randn(t.size)
->>> emg = np.roll(eeg, int(2*fs)) + 0.2*np.random.randn(t.size)  # EMG lags EEG by 2 s
->>> res = compute_rms_crosscorr(eeg, emg, sfreq=fs)
->>> print(res)
-{'r_max': 0.98, 'p': 0.000, 'lag_sec': -2.0, 'lead': 'EEG→EMG', ...}
-"""
+
