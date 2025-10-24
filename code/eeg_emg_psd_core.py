@@ -158,17 +158,3 @@ def compute_psd_shape_corr(
 
     return float(r), float(p), int(valid.sum())
 
-
-# --- Minimal doc example (not executed) ---
-"""
-Example
--------
->>> import numpy as np
->>> fs = 1000
->>> t = np.arange(0, 5, 1/fs)
->>> # toy signals
->>> eeg = 0.2*np.random.randn(t.size) + 0.05*np.sin(2*np.pi*80*t)
->>> emg = 0.5*np.random.randn(t.size) + 0.05*np.sin(2*np.pi*80*t)
->>> r, p, n = compute_psd_shape_corr(eeg, emg, sfreq=fs, hf_band=(64, 256))
->>> print(r, p, n)
-"""
