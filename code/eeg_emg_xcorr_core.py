@@ -66,7 +66,7 @@ def compute_rms_crosscorr(
     hf_band=(64, 256),
     win_sec: float = 1.0,
     step_sec: float = 0.25,
-    max_lag_sec: float = 30.0,
+    max_lag_sec: float = 20.0,
 ) -> dict:
     """
     Compute EEG–EMG RMS cross-correlation.
