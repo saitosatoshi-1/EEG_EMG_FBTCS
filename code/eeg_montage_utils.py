@@ -2,7 +2,7 @@
 Montage & re-referencing utilities (CAR, CSD, Cz) for EEG research (public, reproducible).
 
 This module provides safe, publication-ready helpers to:
-- Prepare a Common Average Reference (CAR) montage
+- Clean and prepare EEG with a standard montage (3D coords) and CAR
 - Compute Current Source Density (CSD; spherical spline) from CAR
 - Retrieve signals in microvolts (µV) after CAR/CSD
 - Create a Cz-referenced pseudo-bipolar (channel - Cz) trace
@@ -30,9 +30,10 @@ from mne.preprocessing import compute_current_source_density
 
 
 __all__ = [
-    "clean_eeg_make_car",
+    "clean_prepare_eeg",     # NEW: returns (raw_car, raw_eeg, used)
+    "clean_eeg_make_car",    # alias (backward-compat)
     "compute_csd",
-    "prepare_car_csd",  # thin wrapper for backward-compat
+    "prepare_car_csd",       # wrapper keeps backward-compatible return
     "get_car_signal",
     "get_csd_signal",
     "get_cz_bipolar",
@@ -40,96 +41,100 @@ __all__ = [
 ]
 
 
-
-
 # ---------------------------------------------------------------------
-# Step 1: Prepare CAR (EEG pick -> normalize -> montage -> valid coords -> CAR)
+# Step 1: Clean & prepare EEG (EEG pick -> normalize -> montage -> valid coords)
+#         then create CAR copy (raw_car). Returns BOTH raw_car and pre-CAR raw_eeg.
 # ---------------------------------------------------------------------
-def clean_eeg_make_car(
+def clean_prepare_eeg(
     raw: mne.io.BaseRaw,
     *,
     exclude_chs: Iterable[str] = ("A1", "A2", "T1", "T2", "M1", "M2"),
     montage: str = "standard_1020",
     apply_10_20_alias: bool = True,
     verbose: bool = True,
-) -> Tuple[mne.io.BaseRaw, Tuple[str, ...]]:
+) -> Tuple[mne.io.BaseRaw, mne.io.BaseRaw, Tuple[str, ...]]:
     """
-    Prepare a CAR-referenced EEG Raw.
+    Clean EEG, attach montage (3D coords), keep valid channels, and create CAR.
 
     Pipeline
     --------
-    1) Pick EEG channels only, drop 'bads' if present.
-    2) Normalize channel names, optionally alias 10-10 to 10-20 (e.g., T7->T3).
-    3) Attach montage; ignore channels without coordinates.
-    4) Keep only channels with valid 3D locations and not in 'exclude_chs'.
-    5) Set CAR reference.
-
-    Parameters
-    ----------
-    raw : mne.io.BaseRaw
-        Input Raw.
-    exclude_chs : Iterable[str]
-        Channels to exclude from CAR (e.g., mastoids without standard coords).
-    montage : str
-        Montage name accepted by MNE (e.g., 'standard_1020').
-    apply_10_20_alias : bool
-        If True, alias some 10-10 labels to 10-20 equivalents (T7->T3, T8->T4, P7->T5, P8->T6).
-    verbose : bool
-        If True, print brief info.
+    1) Copy input and keep EEG channels only (pre-CAR -> raw_eeg)
+    2) Drop 'bad' channels if any (raw.info['bads'])
+    3) Normalize channel names; optionally alias 10-10 -> 10-20 (T7->T3, etc.)
+    4) Attach standard montage (electrode 3D positions)
+    5) Keep channels with valid 3D coords and not in 'exclude_chs'
+    6) Make a CAR copy from pre-CAR EEG (raw_car = raw_eeg.copy(); set CAR)
+    7) Return (raw_car, raw_eeg, used_channels)
 
     Returns
     -------
     raw_car : mne.io.BaseRaw
-        EEG-only Raw with CAR applied.
+        CAR-referenced EEG (valid-position channels only).
+    raw_eeg : mne.io.BaseRaw
+        Cleaned pre-CAR EEG (same channel set as raw_car).
     used_chs : tuple of str
-        Channel names used in CAR.
+        Channel names used for CAR (and suitable for CSD).
     """
-    # EEG only, drop 'bads'
-    raw_car = raw.copy().pick_types(eeg=True, eog=False, emg=False, meg=False)
-    bads = set(getattr(raw, "info", {}).get("bads", []) or [])
-    to_drop = [ch for ch in raw_car.ch_names if ch in bads]
-    if to_drop:
-        raw_car.drop_channels(to_drop)
+    # 1) Work on a COPY and keep EEG only (pre-CAR space)
+    raw_eeg = raw.copy()
+    raw_eeg.pick_types(eeg=True, eog=False, emg=False, meg=False)
 
-    # Normalize names: strip vendor tokens, optional 10-10→10-20 alias
-    def _norm_name(name: str) -> str:
-        base = name.replace("-Ref", "").replace("EEG ", "")
-        if apply_10_20_alias:
-            alias = {"T7": "T3", "T8": "T4", "P7": "T5", "P8": "T6"}
-            return alias.get(base, base)
-        return base
+    # 2) Drop channels marked as "bad" (if any)
+    bads = list(raw.info.get("bads", [])) if hasattr(raw, "info") else []
+    if bads:
+        raw_eeg.drop_channels([ch for ch in raw_eeg.ch_names if ch in bads])
+        if verbose:
+            print(f"[clean_prepare_eeg] Dropped bad channels: {bads}")
 
-    rename_map = {ch: _norm_name(ch) for ch in raw_car.ch_names}
-    raw_car.rename_channels(rename_map)
-    raw_car.set_channel_types({ch: "eeg" for ch in raw_car.ch_names})
+    # 3) Normalize channel names and ensure EEG type
+    alias_map = {"T7": "T3", "T8": "T4", "P7": "T5", "P8": "T6"}
 
-    # Attach montage; ignore missing positions
-    raw_car.set_montage(montage, on_missing="ignore")
+    def _normalize(name: str) -> str:
+        base = name.replace("EEG ", "").replace("-Ref", "")
+        return alias_map.get(base, base) if apply_10_20_alias else base
 
-    # Keep channels with valid 3D coords and not excluded
+    rename_map = {ch: _normalize(ch) for ch in raw_eeg.ch_names}
+    raw_eeg.rename_channels(rename_map)
+    raw_eeg.set_channel_types({ch: "eeg" for ch in raw_eeg.ch_names})
+
+    # 4) Attach montage (electrode positions); ignore unknown channels
+    try:
+        raw_eeg.set_montage(montage, on_missing="ignore")
+    except Exception as e:
+        raise ValueError(f"[clean_prepare_eeg] Montage '{montage}' could not be set: {e}")
+
+    # 5) Keep channels with valid 3D coords and not in the exclude list
+    exclude_upper = set(s.upper() for s in exclude_chs)
     valid: list[str] = []
-    for ch in raw_car.ch_names:
-        loc = raw_car.info["chs"][raw_car.ch_names.index(ch)]["loc"][:3]
-        if (not np.allclose(loc, 0.0)) and (not np.isnan(loc).any()):
-            if ch not in exclude_chs:
-                valid.append(ch)
+    for ch in raw_eeg.ch_names:
+        idx = raw_eeg.ch_names.index(ch)
+        loc3 = raw_eeg.info["chs"][idx]["loc"][:3]  # x, y, z
+        has_pos = (not np.allclose(loc3, 0.0)) and (not np.isnan(loc3).any())
+        if has_pos and (ch.upper() not in exclude_upper):
+            valid.append(ch)
 
+    if verbose:
+        print(f"[clean_prepare_eeg] Valid channels with coords (pre-CAR): {len(valid)}")
     if len(valid) < 16 and verbose:
-        print(
-            f"[clean_eeg_make_car] Warning: only {len(valid)} channels have valid coordinates; "
-            "CSD may be unstable."
-        )
+        print("[clean_prepare_eeg] Warning: <16 valid-position channels; "
+              "spatial transforms (e.g., CSD) may be unstable.")
 
-    raw_car.pick_channels(valid)
+    raw_eeg.pick_channels(valid)
+
+    # 6) Create CAR copy (post-CAR space)
+    raw_car = raw_eeg.copy()
     raw_car.set_eeg_reference(ref_channels="average", projection=False)
 
     if verbose:
-        print("[clean_eeg_make_car] CAR channels:", ", ".join(raw_car.ch_names))
+        print(f"[clean_prepare_eeg] {len(raw_car.ch_names)} channels used for CAR:")
+        print(", ".join(raw_car.ch_names))
 
-    return raw_car, tuple(raw_car.ch_names)
+    # 7) Return CAR, pre-CAR, and used channel names
+    return raw_car, raw_eeg, tuple(raw_car.ch_names)
 
 
-
+# Backward-compat alias (old name still works)
+clean_eeg_make_car = clean_prepare_eeg
 
 
 # ---------------------------------------------------------------------
@@ -168,11 +173,9 @@ def compute_csd(
         return None
 
 
-
-
-
 # ---------------------------------------------------------------------
 # Backward-compatible wrapper (CAR + CSD)
+#   - Keeps return signature: (raw_car, raw_csd, used)
 # ---------------------------------------------------------------------
 def prepare_car_csd(
     raw: mne.io.BaseRaw,
@@ -184,9 +187,15 @@ def prepare_car_csd(
     verbose: bool = True,
 ) -> Tuple[mne.io.BaseRaw, Optional[mne.io.BaseRaw], Tuple[str, ...]]:
     """
-    Convenience wrapper: prepare CAR, then attempt CSD.
+    Convenience wrapper: clean & prepare EEG, build CAR, then attempt CSD.
+
+    Returns
+    -------
+    raw_car : mne.io.BaseRaw
+    raw_csd : mne.io.BaseRaw or None
+    used_chs : tuple of str
     """
-    raw_car, used = clean_eeg_make_car(
+    raw_car, raw_eeg, used = clean_prepare_eeg(
         raw,
         exclude_chs=exclude_chs,
         montage=montage,
@@ -195,8 +204,6 @@ def prepare_car_csd(
     )
     raw_csd = compute_csd(raw_car, csd_kwargs=csd_kwargs, verbose=verbose)
     return raw_car, raw_csd, used
-
-
 
 
 # ---------------------------------------------------------------------
@@ -256,8 +263,6 @@ def get_cz_bipolar(raw_car: mne.io.BaseRaw, ch_name: str, cz_name: str = "Cz") -
     return sig.astype(np.float32)
 
 
-
-
 # ---------------------------------------------------------------------
 # Build channel dictionaries robustly
 # ---------------------------------------------------------------------
@@ -298,17 +303,14 @@ def make_eeg_dict(
     return out
 
 
-
-
-
 # ---------------------------------------------------------------------
 # Documentation-only usage example (do not execute on import)
 # ---------------------------------------------------------------------
 """
 Example
 -------
->>> # Step 1: CAR
->>> raw_car, used = prepare_car(
+>>> # Step 1: Clean & prepare EEG, then make CAR
+>>> raw_car, raw_eeg, used = clean_prepare_eeg(
 ...     raw, exclude_chs=("A1","A2","T1","T2","M1","M2"),
 ...     montage="standard_1020", apply_10_20_alias=True, verbose=True
 ... )
