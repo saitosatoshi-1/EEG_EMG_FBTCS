@@ -31,29 +31,41 @@ pip install numpy scipy matplotlib mne
 
 ### 🧩 Code structure
 
-`code/eeg_edf_utils.py`	
+- `code/eeg_edf_utils.py`	-
+
 Safe EDF loader, channel normalization, high-pass / notch filters
-Methods: Data acquisition and preprocessing
 
-`code/eeg_montage_utils.py`
+*Methods: Data acquisition and preprocessing*
+
+- `code/eeg_montage_utils.py` -
+
 Common Average Reference (CAR), Cz-reference, and Current Source Density (CSD) montages
-Methods: Montage comparison (Cz, average, Laplacian)
 
-`code/signal_analysis_utils.py`	
+*Methods: Montage comparison (Cz, average, Laplacian)*
+
+- `code/signal_analysis_utils.py`	-
+
 Core filtering, Hilbert envelope, and dynamic spectral analysis (DSA) plotting
-Figures 1–2
 
-`code/eeg_emg_psd_core.py`
+*Figures 1–2*
+
+- `code/eeg_emg_psd_core.py` -
+
 Log-log PSD shape correlation between EEG and EMG within 64–256 Hz band
-Figure 3
 
-`code/eeg_emg_xcorr_core.py`
+*Figure 3*
+
+- `code/eeg_emg_xcorr_core.py` -
+
 RMS cross-correlation and lag estimation (EEG ↔ EMG)
-Figure 3
 
-`code/eeg_riseslope_core.py`
+*Figure 3*
+
+- `code/eeg_riseslope_core.py` -
+
 iRMS area and 10–90 % rise-slope computation
-Figure 4–5
+
+*Figure 4–5*
 
 All modules are analysis-only (no patient data, plotting optional).
 
