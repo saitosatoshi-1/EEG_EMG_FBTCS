@@ -38,13 +38,6 @@ def compute_psd_shape_corr(
     hf_band: Tuple[float, float] = (64.0, 256.0),
     nperseg: Optional[int] = None,
     noverlap_frac: float = 0.5,
-    *,
-    window: str = "hann",
-    detrend: str = "constant",
-    scaling: str = "density",
-    average: str = "mean",
-    corr: CorrMethod = "pearson",
-    min_bins: int = 6,
 ) -> Tuple[float, float, int]:
     """
     Compute log10-PSD shape correlation between EEG and EMG within a given band.
@@ -61,8 +54,6 @@ def compute_psd_shape_corr(
         Welch segment length. Default: int(0.5 * sfreq), min 8.
     noverlap_frac : float
         0..1 overlap ratio for Welch. Default 0.5.
-    window, detrend, scaling, average : str
-        Passed to scipy.signal.welch (made explicit for reproducibility).
     corr : {"pearson","spearman"}
         Correlation method. Default "pearson".
     min_bins : int
