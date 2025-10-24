@@ -88,12 +88,12 @@ def with_cz(eeg_pre: mne.io.BaseRaw, used_channels: Tuple[str, ...], cz_name: st
     return eeg_cz
 
 # -------------------------------
-# Step 3: CSD from CAR (V/m²)
+# Step 3: CSD from CAR 
 # -------------------------------
-def with_csd(eeg_car: mne.io.BaseRaw, verbose: bool = True, **kwargs) -> Optional[mne.io.BaseRaw]:
-    """Compute Current Source Density (unit: V/m²)."""
+def with_csd(eeg_car: mne.io.BaseRaw, verbose: bool = True) -> Optional[mne.io.BaseRaw]:
+    """Compute Current Source Density"""
     try:
-        return compute_current_source_density(eeg_car.copy(), **kwargs)
+        return compute_current_source_density(eeg_car.copy())
     except Exception as e:
         if verbose:
             print("[with_csd] CSD computation failed:", repr(e))
