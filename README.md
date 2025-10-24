@@ -1,6 +1,6 @@
 # EEG-Embedded EMG Analysis During Focal to Bilateral Tonic–Clonic Seizures
 
-This repository contains the Python scripts used in the study:
+This repository provides the reproducible Python analysis pipeline used in:
 
 **Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H.**  
 *Electromyographic components contaminating the scalp EEG during focal to bilateral tonic–clonic seizures as potential markers for seizure detection and lateralization: an exploratory study.*  
@@ -9,22 +9,22 @@ Submitted to *Epilepsy Research* (2025).
 ---
 
 ### 🧠 Overview
-This project characterizes high-frequency (64–256 Hz) electromyographic (EMG) components embedded in scalp electroencephalography (EEG) during focal-to-bilateral tonic–clonic seizures (FBTCS).  
+This project characterizes **high-frequency (64–256 Hz) electromyographic (EMG) components embedded in scalp EEG** during focal-to-bilateral tonic–clonic seizures (FBTCS).  
+The aim is to determine whether these “artifact” components can provide **supplementary biomarkers for seizure detection and lateralization**, particularly when reliable video monitoring is unavailable.
 
-The analysis pipeline includes:
-- Band-pass filtering (64–256 Hz)  
-- Hilbert-based RMS envelope computation  
-- Power spectral density (PSD) and cross-correlation analysis  
-- Quantitative indices (integrated RMS [iRMS] and 10–90% rise slope)
+Key quantitative measures:
+- Power spectral density (PSD) correlation between EEG and deltoid EMG  
+- Cross-correlation of RMS envelopes (temporal similarity)  
+- Integrated RMS (iRMS) and 10–90 % rise slope (tonic contraction rate)
 
-All scripts are designed for **reproducibility** and **transparency**, with no patient data included.
+All scripts are designed for **open, safe, and patient-free** analysis and reproduce the procedures used for Figures 2–5 of the manuscript.
 
 ---
 
 ### ⚙️ Requirements
 Install dependencies:
 ```bash
-pip install -r requirements.txt
+pip install numpy scipy matplotlib mne
 ```
 
 ---
@@ -32,61 +32,36 @@ pip install -r requirements.txt
 ### 🧩 Code structure
 
 `code/eeg_edf_utils.py`	
-EDF loader and preprocessing utilities (channel renaming, notch/high-pass, cropping).
+Safe EDF loader, channel normalization, high-pass / notch filters
+Methods: Data acquisition and preprocessing
 
 `code/eeg_montage_utils.py`
-Montage preparation (CAR, CSD, Cz reference).
+Common Average Reference (CAR), Cz-reference, and Current Source Density (CSD) montages
+Methods: Montage comparison (Cz, average, Laplacian)
 
 `code/signal_analysis_utils.py`	
-Core filtering, Hilbert envelope, and DSA (spectrogram) functions.
+Core filtering, Hilbert envelope, and dynamic spectral analysis (DSA) plotting
+Figures 1–2
 
 `code/eeg_emg_psd_core.py`
-Log–log PSD shape-correlation between EEG and EMG (r, p).
+Log-log PSD shape correlation between EEG and EMG within 64–256 Hz band
+Figure 3
 
 `code/eeg_emg_xcorr_core.py`
-RMS cross-correlation to estimate EEG–EMG lag direction.
+RMS cross-correlation and lag estimation (EEG ↔ EMG)
+Figure 3
 
-`code/eeg_emg_riseslope_core.py`
-RMS-based indices (iRMS area, 10–90% rise time and slope).
+`code/eeg_riseslope_core.py`
+iRMS area and 10–90 % rise-slope computation
+Figure 4–5
 
-Each file contains only analysis logic — no plotting or I/O — for safe, fully reproducible research use.
-
----
-
-### 💻 Example usage
-
-1. Compute PSD shape correlation
-
-```python
-from eeg_emg_psd_core import compute_psd_shape_corr
-r, p = compute_psd_shape_corr(eeg, emg, sfreq=1000.0, hf_band=(64,256))
-print(r, p)
-```
-
-
-2. Cross-correlation of RMS envelopes
-
-```python
-from eeg_emg_xcorr_core import compute_rms_crosscorr
-res = compute_rms_crosscorr(eeg, emg, sfreq=1000)
-print(res)
-```
-
-
-3. RMS rise-slope metrics
-   
-```python
-from eeg_emg_riseslope_core import compute_hf_rms_metrics
-m = compute_hf_rms_metrics(signal, sfreq=1000.0, hf_band=(64,256))
-print(m)
-```
+All modules are analysis-only (no patient data, plotting optional).
 
 ---
 
 ### 📂 Data availability
 
 No real EEG or EMG data are included in this repository due to patient confidentiality.
-All analysis scripts are fully executable using any EEG/EMG dataset in CSV or EDF format that follows the same channel structure and sampling frequency described in the manuscript.
 
 ---
 
@@ -99,7 +74,7 @@ The study was approved by the Institutional Review Board of the National Center 
 
 ### 📜 License
 
-This project is released under the MIT License (see LICENSE).
+Released under the MIT License.
 
 ---
 
