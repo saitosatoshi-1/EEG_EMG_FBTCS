@@ -7,7 +7,10 @@ Computes envelope-based RMS metrics from high-frequency (64–256 Hz) content:
 - Rise_time  (10% → 90% time-to-rise)
 - Rise_slope (ΔRMS / Rise_time)
 
-This implements the core of the 'Figure 5' analysis in:
+This function was originally used to quantify the rise dynamics of high-frequency EMG components
+embedded in scalp EEG during head deviation (versive) phases of focal-to-bilateral tonic–clonic seizures,
+as part of the 'rise slope' analysis in Figure 5.
+
 Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H. (2025, submitted)
 'Electromyographic components contaminating the scalp EEG ...'
 
