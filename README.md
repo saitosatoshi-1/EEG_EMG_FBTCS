@@ -10,27 +10,37 @@ Submitted to *Epilepsy Research* (2025).
 
 ### 🧠 Overview
 This project characterizes **high-frequency (64–256 Hz) electromyographic (EMG) components embedded in scalp EEG** during focal-to-bilateral tonic–clonic seizures (FBTCS).  
-The aim is to determine whether these “artifact” components can provide **supplementary biomarkers for seizure detection and lateralization**, particularly when reliable video monitoring is unavailable.
+The aim is to determine whether these “artifact” components can provide **supplementary biomarkers for seizure detection and lateralization**.
 
-**Concept:**
+### Concept
 
 High-frequency EMG activity that contaminates scalp EEG signals was re-evaluated as a physiological signal rather than a noise source.
 By quantitatively comparing EEG-embedded EMG components with simultaneously recorded deltoid EMG, this study investigated how these high-frequency features reflect seizure-related muscle activity and how they can be used to detect and lateralize FBTCS.
 
-**Key quantitative measures:**
 
-- **Power spectral density (PSD) correlation** between EEG and deltoid EMG, confirming that high-frequency components in the EEG originate from muscle activity.
-- **Cross-correlation of RMS envelopes**, assessing temporal similarity between EEG-embedded EMG and deltoid EMG signals.
-- **Integrated RMS (iRMS)** and **10–90 % rise slope during ictal head deviation,** reflecting the intensity and rate of tonic muscle contraction
 
-**Clinical relevance:**
+### Key quantitative measures
 
-- **Seizure detection:**
+- **Power spectral density (PSD) correlation**
+
+Compute PSD correlations between EEG and deltoid EMG, confirming that high-frequency components in the EEG originate from muscle activity.
+
+- **Cross-correlation of RMS envelopes**
+
+Assess temporal similarity between EEG-embedded EMG and deltoid EMG signals.
+
+- **Integrated RMS (iRMS)** and **10–90 % rise slope**
+Quantify tonic contraction strength and rate during head deviation.
+
+
+### Clinical relevance
+
+- **Seizure detection**
 
 The high-frequency components embedded in scalp EEG showed a strong similarity to deltoid EMG activity, indicating that these signals represent seizure-related muscle activation characteristic of FBTCS.
 This finding suggests that high-frequency EEG components can be used to quantitatively detect the occurrence of generalized tonic–clonic activity from EEG alone.
 
-- **Lateralization:**
+- **Lateralization**
 
 Both iRMS and rise slope values were consistently higher on the ipsiversive side (the direction of head deviation), providing an objective electrophysiological marker for lateralization.
 
@@ -117,5 +127,7 @@ Epilepsy Research (2025).
 ---
 
 ### 📘 Zenodo DOI
+Zenodo DOI: 10.5281/zenodo.17421104
 
-https://doi.org/10.5281/zenodo.17421104
+(https://doi.org/10.5281/zenodo.17421104)
+
