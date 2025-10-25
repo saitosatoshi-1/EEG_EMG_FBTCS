@@ -105,18 +105,8 @@ def _rise_metrics_from_rms(
         return (np.nan, np.nan, np.nan, np.nan)
 
     # Integrals
-    try:
-        area = float(trapezoid(rms, x=t))
-        dur = float(t[-1] - t[0])
-    except Exception:
-        # Fallback with uniform spacing
-        if t.size > 1:
-            dx = float(np.median(np.diff(t)))
-            area = float(trapezoid(rms, dx=dx))
-            dur = dx * (t.size - 1)
-        else:
-            return (np.nan, np.nan, np.nan, np.nan)
-
+    area = float(trapezoid(rms, x=t))
+    dur = float(t[-1] - t[0])
     area_per_sec = area / max(dur, 1e-12)
 
     # 10–90% rise metrics
