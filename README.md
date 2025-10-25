@@ -63,7 +63,7 @@ RMS cross-correlation and lag estimation (EEG ↔ EMG)
 
 - `code/eeg_riseslope_core.py` -
 
-iRMS area and 10–90 % rise-slope computation
+iRMS area and 10–90 % rise-slope computation during head deviation (versive phase)
 
 *Figure 4–5*
 
