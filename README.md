@@ -12,10 +12,20 @@ Submitted to *Epilepsy Research* (2025).
 This project characterizes **high-frequency (64–256 Hz) electromyographic (EMG) components embedded in scalp EEG** during focal-to-bilateral tonic–clonic seizures (FBTCS).  
 The aim is to determine whether these “artifact” components can provide **supplementary biomarkers for seizure detection and lateralization**, particularly when reliable video monitoring is unavailable.
 
+Concept:
+
+High-frequency EMG components embedded in scalp EEG—traditionally regarded as artifacts—were quantitatively analyzed to detect seizure-related muscle activation and to infer its lateralizing direction.
+
 Key quantitative measures:
-- Power spectral density (PSD) correlation between EEG and deltoid EMG  
-- Cross-correlation of RMS envelopes (temporal similarity)  
-- Integrated RMS (iRMS) and 10–90 % rise slope (tonic contraction rate)
+
+- Power spectral density (PSD) correlation between EEG and deltoid EMG (to confirm the EMG origin of high-frequency activity)
+- Cross-correlation of RMS envelopes (to assess temporal similarity between EEG-embedded EMG and deltoid EMG)
+- Integrated RMS (iRMS) and 10–90 % rise slope during ictal head deviation, reflecting the intensity and rate of tonic muscle contraction
+
+Clinical relevance:
+
+- Seizure detection: A sharp increase in high-frequency RMS amplitude at T3/T4 electrodes reliably marked the tonic onset, enabling quantitative identification of seizure activity from scalp EEG alone.
+- Lateralization: iRMS and rise slope values were consistently greater on the ipsiversive (head-turning) side, providing an objective electrophysiological indicator of seizure lateralization even without clear video data.
 
 All scripts are designed for **open, safe, and patient-free** analysis and reproduce the procedures used for Figures 2–5 of the manuscript.
 
