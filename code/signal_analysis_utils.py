@@ -36,14 +36,6 @@ def bandpass_1d(x: np.ndarray, sfreq: float, low: float, high: float, order: int
     Apply a zero-phase band-pass filter to a 1D signal.
     x : ndarray
         Input signal (1D array).
-    sfreq : float
-        Sampling frequency in Hz.
-    low, high : float
-        Passband frequencies in Hz.
-    order : int
-        Filter order.
-    x_filt : ndarray (float32)
-        Band-pass filtered signal.
     """
     sos = _bp_sos(float(sfreq), float(low), float(high), int(order))
     return sosfiltfilt(sos, np.asarray(x, dtype=np.float32)).astype(np.float32)
@@ -61,11 +53,7 @@ def compute_hilbert_envelope(
 ) -> tuple[np.ndarray, np.ndarray]:
     """
     Band-pass filter -> Hilbert transform -> envelope magnitude.
-
     Optionally applies moving-average smoothing to the envelope.
-
-    Parameters
-    ----------
     signal : ndarray
         Input 1D signal.
     sfreq : float
@@ -76,9 +64,6 @@ def compute_hilbert_envelope(
         Butterworth filter order.
     smooth_sec : float or None
         Smoothing window in seconds. If None, no smoothing.
-
-    Returns
-    -------
     env_smooth : ndarray
         Smoothed envelope (if smoothing applied, else identical to raw envelope).
     env_raw : ndarray
@@ -116,17 +101,8 @@ def plot_dsa_db(
 ):
     """
     Plot dynamic spectral analysis (DSA) in decibel scale.
-
-    Parameters
-    ----------
     ax : matplotlib.axes.Axes
         Target axis for plotting.
-    signal : ndarray
-        Input 1D signal.
-    sfreq : float
-        Sampling frequency in Hz.
-    title : str
-        Plot title.
     win_sec : float
         Window length in seconds for STFT.
     overlap : float
@@ -141,9 +117,6 @@ def plot_dsa_db(
         Figure handle for colorbar (if add_colorbar=True).
     vmin, vmax : float or None
         Color scale limits. If None, set to 5th–95th percentile.
-
-    Returns
-    -------
     f : ndarray
         Frequency bins (Hz).
     t_spec : ndarray
