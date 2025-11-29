@@ -1,28 +1,16 @@
 """
 EEG/EMG high-frequency RMS cross-correlation analysis (no plotting)
-
 Computes lag and correlation between EEG and EMG high-frequency (64–256 Hz)
 Hilbert-RMS envelopes. This is a simplified, analysis-only version of the
 cross-correlation method used in:
 
-Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H. (2025, submitted)
-'Electromyographic components contaminating the scalp EEG ...'
-Epilepsy Research (under review).
-
-What it does
-------------
 - Compute Hilbert envelope (64–256 Hz)
 - Compute sliding-window RMS (1 s window, 0.25 s step)
 - Normalize (0–1)
 - Compute Pearson cross-correlation at multiple lags (±30 s)
 - Return max correlation (r_max) and lag_sec
-
-No plotting or file I/O. Safe for publication.
-
-Dependencies: numpy, scipy
 """
 
-from __future__ import annotations
 import numpy as np
 from scipy.signal import butter, sosfiltfilt, hilbert
 from scipy.stats import pearsonr
