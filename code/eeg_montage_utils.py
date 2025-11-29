@@ -1,27 +1,12 @@
 """
 Montage & re-referencing utilities (CAR, CSD, Cz) for EEG research (public, reproducible).
-
-This module provides safe, publication-ready helpers to:
 - Clean and prepare EEG with a standard montage (3D coords) and CAR
 - Re-reference to Cz
 - Compute Current Source Density (CSD; spherical spline) from CAR
-
-Notes
------
-- No patient-specific data are exposed.
 - Channel name normalization to 10–20 labels is supported (e.g., T7→T3, P7→T5).
 - CSD requires sufficient spatial coverage; with too few valid electrodes, it may be unstable.
-
-References
-----------
-Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H.
-"Electromyographic components contaminating the scalp EEG during focal to bilateral tonic–clonic seizures
-as potential markers for seizure detection and lateralization: an exploratory study."
-Submitted to Epilepsy Research (2025).
 """
 
-
-from __future__ import annotations
 from typing import Iterable, Tuple, Optional
 import numpy as np
 import mne
@@ -99,10 +84,3 @@ def with_csd(eeg_car: mne.io.BaseRaw, verbose: bool = True) -> Optional[mne.io.B
             print("[with_csd] CSD computation failed:", repr(e))
         return None
 
-"""
-Usage
------
->>> eeg_pre, eeg_car, used = prepare_eeg_and_car(raw)
->>> eeg_cz  = with_cz(eeg_pre, used)
->>> eeg_csd = with_csd(eeg_car)
-"""
