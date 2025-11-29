@@ -1,27 +1,10 @@
 """
 EEG/EMG PSD shape-correlation (analysis-only, no plotting)
-
-Core function to reproduce the main PSD-based result in:
-Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H. (2025, submitted)
-'Electromyographic components contaminating the scalp EEG ...'
-
-What it does
-------------
 - Welch PSD (EEG, EMG)
 - log10 transform within a HF band (default 64–256 Hz)
 - Correlate PSD "shapes" (Pearson by default; Spearman optional)
-
-Design notes
-------------
-- No patient-specific I/O; safe to publish.
-- Robust to NaN/Inf; checks band/frequency-grid alignment strictly.
-- Returns (r, p, n_bins) so callers can verify validity.
-
-Dependencies: numpy, scipy
-License: MIT
 """
 
-from __future__ import annotations
 from typing import Tuple, Optional, Literal
 import numpy as np
 from scipy.signal import welch
@@ -41,9 +24,6 @@ def compute_psd_shape_corr(
 ) -> Tuple[float, float, int]:
     """
     Compute log10-PSD shape correlation between EEG and EMG within a given band.
-
-    Parameters
-    ----------
     eeg, emg : 1D ndarray
         Signals in microvolts (µV). Same sampling rate is assumed.
     sfreq : float
@@ -58,18 +38,8 @@ def compute_psd_shape_corr(
         Correlation method. Default "pearson".
     min_bins : int
         Minimum number of frequency bins required to return a valid result.
-
-    Returns
-    -------
-    r, p, n_bins : float, float, int
-        Correlation coefficient, two-sided p-value, and number of frequency bins used.
-        Returns (nan, nan, 0) if inputs are invalid or insufficient.
-
-    Notes
-    -----
-    - Uses strict frequency alignment (intersection of Welch grids within hf_band).
-    - Log10 transform after adding small epsilon to avoid log(0).
     """
+    
     # ---- Basic checks ----
     eeg = np.asarray(eeg, dtype=float)
     emg = np.asarray(emg, dtype=float)
