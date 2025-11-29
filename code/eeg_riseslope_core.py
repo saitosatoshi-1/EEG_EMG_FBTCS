@@ -1,29 +1,12 @@
 """
 EEG embedded EMG high-frequency RMS metrics (analysis-only, no plotting)
-
 Computes envelope-based RMS metrics from high-frequency (64–256 Hz) content:
 - RMS_area (integral of RMS over time)
 - RMS_area_per_sec
 - Rise_time  (10% → 90% time-to-rise)
 - Rise_slope (ΔRMS / Rise_time)
-
-This function was originally used to quantify the rise dynamics of high-frequency EMG components
-embedded in scalp EEG during head deviation (versive) phases of focal-to-bilateral tonic–clonic seizures,
-as part of the 'rise slope' analysis in Figure 5.
-
-Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H. (2025, submitted)
-'Electromyographic components contaminating the scalp EEG ...'
-
-Design goals
-------------
-- No patient data or file I/O
-- No plotting
-- Pure functions usable from scripts or notebooks
-
-Dependencies: numpy, scipy, (optional) pandas
 """
 
-from __future__ import annotations
 from typing import Dict, Tuple, Sequence, Optional
 import numpy as np
 from scipy.signal import butter, sosfiltfilt, hilbert
