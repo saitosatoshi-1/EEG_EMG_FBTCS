@@ -5,7 +5,6 @@ Functions include:
 - Channel name normalization
 - EMG channel type assignment
 - Optional notch and high-pass filtering
-- Optional time cropping
 - Extraction of EEG/EMG signals in microvolts (µV)
 """
 
@@ -46,7 +45,12 @@ def set_emg_types(raw: mne.io.BaseRaw, emg_names: list[str] | None = None) -> No
     Mark EMG channels (e.g., X5, X7, or Deltoid) as 'emg' type if present.
     """
     if emg_names is None:
-        emg_names = [ch for ch in raw.ch_names if any(k in ch.upper() for k in ["X", "EMG", "DELTOID"])]
+        emg_names = []
+        for ch in raw.ch_names:
+            name = ch.upper()  # 大文字に変換
+            if ("X" in name) or ("EMG" in name) or ("DELTOID" in name):
+                emg_names.append(ch)
+                
     to_emg = {ch: "emg" for ch in emg_names if ch in raw.ch_names}
     if to_emg:
         raw.set_channel_types(to_emg)
@@ -71,17 +75,6 @@ def apply_filters(
         raw.notch_filter(freqs=notch, picks=picks)
     if hp is not None:
         raw.filter(l_freq=hp, h_freq=None, picks=picks, fir_design="firwin")
-
-
-def crop_by_time(raw: mne.io.BaseRaw, t_start: float | None, t_end: float | None) -> None:
-    """
-    Crop the recording in-place between t_start and t_end (in seconds).
-    """
-    if t_start is None and t_end is None:
-        return
-    if t_start is None:
-        t_start = 0.0
-    raw.crop(tmin=max(0.0, t_start), tmax=t_end)
 
 
 # ---------------------------------------------------------------------
