@@ -1,12 +1,5 @@
 """
 EEG/EMG EDF loader and minimal preprocessing utilities (public, reproducible).
-
-This module provides core functions used in:
-Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H.
-"Electromyographic components contaminating the scalp EEG during focal to bilateral tonic–clonic seizures
-as potential markers for seizure detection and lateralization: an exploratory study."
-Submitted to Epilepsy Research (2025).
-
 Functions include:
 - Safe EDF loading via MNE
 - Channel name normalization
@@ -14,10 +7,7 @@ Functions include:
 - Optional notch and high-pass filtering
 - Optional time cropping
 - Extraction of EEG/EMG signals in microvolts (µV)
-
-All functions are designed for reproducibility and contain no patient-specific data.
 """
-
 
 # ---------------------------------------------------------------------
 # 1. EDF loading
@@ -26,19 +16,8 @@ import mne
 
 def read_edf(edf_path: str, preload: bool = True) -> mne.io.BaseRaw:
     """
-    Load an EDF file as an MNE Raw object.
-
-    Parameters
-    ----------
-    edf_path : str
-        Path to the EDF file.
     preload : bool, default True
         If True, read data into memory (recommended for filtering/cropping).
-
-    Returns
-    -------
-    raw : mne.io.BaseRaw
-        Continuous EEG/EMG recording. No patient-identifying fields are accessed.
     """
     raw = mne.io.read_raw_edf(edf_path, preload=preload, verbose="ERROR")
     return raw
@@ -51,7 +30,6 @@ def read_edf(edf_path: str, preload: bool = True) -> mne.io.BaseRaw:
 def normalize_channel_names(raw: mne.io.BaseRaw) -> None:
     """
     Remove vendor-specific prefixes or suffixes (non-destructive).
-
     Example: "EEG Fp1-Ref" → "Fp1"
     """
     rename_map = {}
@@ -66,11 +44,6 @@ def normalize_channel_names(raw: mne.io.BaseRaw) -> None:
 def set_emg_types(raw: mne.io.BaseRaw, emg_names: list[str] | None = None) -> None:
     """
     Mark EMG channels (e.g., X5, X7, or Deltoid) as 'emg' type if present.
-
-    Parameters
-    ----------
-    emg_names : list of str or None
-        Channel names to mark as EMG. If None, try to detect automatically.
     """
     if emg_names is None:
         emg_names = [ch for ch in raw.ch_names if any(k in ch.upper() for k in ["X", "EMG", "DELTOID"])]
@@ -90,11 +63,6 @@ def apply_filters(
 ) -> None:
     """
     Apply notch and/or high-pass filtering to EEG/EMG channels.
-
-    Parameters
-    ----------
-    notch : list of float or None
-        Frequencies (e.g., [50, 100, 150, 200, 250]) to apply notch filters.
     hp : float or None
         High-pass cutoff frequency in Hz. If None, skip high-pass filtering.
     """
@@ -108,13 +76,6 @@ def apply_filters(
 def crop_by_time(raw: mne.io.BaseRaw, t_start: float | None, t_end: float | None) -> None:
     """
     Crop the recording in-place between t_start and t_end (in seconds).
-
-    Parameters
-    ----------
-    t_start : float or None
-        Start time in seconds. None means from beginning.
-    t_end : float or None
-        End time in seconds. None means until the end.
     """
     if t_start is None and t_end is None:
         return
@@ -131,14 +92,6 @@ import numpy as np
 def get_uv(raw: mne.io.BaseRaw, ch_list: list[str]) -> dict[str, np.ndarray]:
     """
     Return specified channels as microvolt (µV) arrays.
-
-    Parameters
-    ----------
-    ch_list : list of str
-        Channel names to extract.
-
-    Returns
-    -------
     out : dict
         Dictionary mapping each channel to a 1D NumPy array (float32, µV).
     """
@@ -148,18 +101,3 @@ def get_uv(raw: mne.io.BaseRaw, ch_list: list[str]) -> dict[str, np.ndarray]:
             out[ch] = (raw.get_data(picks=[ch])[0] * 1e6).astype(np.float32)
     return out
 
-
-# ---------------------------------------------------------------------
-# Example usage (for documentation only)
-# ---------------------------------------------------------------------
-"""
-Example
--------
->>> from eeg_edf_utils import read_edf, normalize_channel_names, apply_filters, get_uv
->>> raw = read_edf("data/sample.edf")
->>> normalize_channel_names(raw)
->>> apply_filters(raw, notch=[50,100,150,200,250], hp=2.0)
->>> eeg = get_uv(raw, ["Fp1","Fp2","T3","T4"])
->>> print(list(eeg.keys()))
-['Fp1', 'Fp2', 'T3', 'T4']
-"""
