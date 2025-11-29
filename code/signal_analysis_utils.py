@@ -1,27 +1,14 @@
 """
-Signal analysis utilities for EEG/EMG research (public, reproducible).
-
-This module provides core signal-processing and visualization functions used in:
-Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H.
-"Electromyographic components contaminating the scalp EEG during focal to bilateral tonic–clonic seizures
-as potential markers for seizure detection and lateralization: an exploratory study."
-Submitted to Epilepsy Research (2025).
-
 Functions:
 - Band-pass filtering (Butterworth, SOS)
 - Hilbert envelope computation with optional smoothing
 - Dynamic spectral analysis (DSA) plotting in decibel scale
-
-All functions are self-contained and safe for open publication.
-No clinical or patient-specific data are included.
 """
 
-from __future__ import annotations
 import numpy as np
 from functools import lru_cache
 from scipy.signal import butter, sosfiltfilt, hilbert, spectrogram
 import matplotlib.pyplot as plt
-
 
 # ---------------------------------------------------------------------
 # 1. Band-pass filter (cached SOS design)
@@ -30,20 +17,15 @@ import matplotlib.pyplot as plt
 def _bp_sos(sfreq: float, low: float, high: float, order: int = 4):
     """
     Design a Butterworth band-pass filter (second-order sections form).
-
-    Parameters
-    ----------
     sfreq : float
         Sampling frequency in Hz.
     low, high : float
         Lower and upper cutoff frequencies in Hz.
     order : int
         Filter order (default: 4).
-
-    Returns
-    -------
     sos : ndarray
         Second-order section coefficients for filtering.
+    nyq : Nyquist frequency
     """
     nyq = 0.5 * float(sfreq)
     return butter(int(order), [low / nyq, high / nyq], btype="band", output="sos")
@@ -52,9 +34,6 @@ def _bp_sos(sfreq: float, low: float, high: float, order: int = 4):
 def bandpass_1d(x: np.ndarray, sfreq: float, low: float, high: float, order: int = 4) -> np.ndarray:
     """
     Apply a zero-phase band-pass filter to a 1D signal.
-
-    Parameters
-    ----------
     x : ndarray
         Input signal (1D array).
     sfreq : float
@@ -63,9 +42,6 @@ def bandpass_1d(x: np.ndarray, sfreq: float, low: float, high: float, order: int
         Passband frequencies in Hz.
     order : int
         Filter order.
-
-    Returns
-    -------
     x_filt : ndarray (float32)
         Band-pass filtered signal.
     """
@@ -211,19 +187,3 @@ def plot_dsa_db(
     return f, t_spec, Sxx_db
 
 
-# ---------------------------------------------------------------------
-# Example usage (documentation only)
-# ---------------------------------------------------------------------
-"""
-Example
--------
->>> from signal_analysis_utils import compute_hilbert_envelope, plot_dsa_db
->>> import matplotlib.pyplot as plt
->>> fs = 1000
->>> t = np.arange(0, 5, 1/fs)
->>> x = np.sin(2*np.pi*120*t) + 0.2*np.random.randn(t.size)
->>> env, _ = compute_hilbert_envelope(x, fs, band=(64, 256), smooth_sec=0.01)
->>> fig, ax = plt.subplots(figsize=(6,3))
->>> plot_dsa_db(ax, x, fs, title="Synthetic EMG DSA", fmax=300)
->>> plt.show()
-"""
