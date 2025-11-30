@@ -10,9 +10,7 @@ import numpy as np
 from scipy.signal import welch
 from scipy.stats import pearsonr, spearmanr
 
-
 CorrMethod = Literal["pearson", "spearman"]
-
 
 def compute_psd_shape_corr(
     eeg: np.ndarray,
