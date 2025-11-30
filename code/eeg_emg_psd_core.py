@@ -65,6 +65,8 @@ def compute_psd_shape_corr(
         noverlap = max(0, nperseg - 1)
 
     # ---- Welch PSDs ----
+    #f_eeg: 周波数軸（例：0, 2, 4, …, 256Hz）
+    #Pxx_eeg: パワー（同じ長さのベクトル）
     f_eeg, Pxx_eeg = welch(
         eeg, fs=sfreq, nperseg=nperseg, noverlap=noverlap,
         window=window, detrend=detrend, scaling=scaling, average=average
@@ -85,6 +87,7 @@ def compute_psd_shape_corr(
 
     # Intersect frequency grids (exact equality should hold if Welch params match;
     # but we still intersect robustly to be future-proof).
+    # 念のため “共通して存在する周波数”だけ を使う。
     f_common = np.intersect1d(f1, f2, assume_unique=False)
     if f_common.size < min_bins:
         return float("nan"), float("nan"), int(f_common.size)
