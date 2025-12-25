@@ -4,7 +4,6 @@ This repository provides the reproducible Python analysis pipeline used in:
 
 **Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H.**  
 *Electromyographic components contaminating the scalp EEG during focal to bilateral tonic–clonic seizures as potential markers for seizure detection and lateralization: an exploratory study.*  
-Submitted to *Epilepsy Research* (2025).
 
 ---
 
@@ -74,25 +73,25 @@ Common Average Reference (CAR), Cz-reference, and Current Source Density (CSD) m
 
 Core filtering, Hilbert envelope, and dynamic spectral analysis (DSA) plotting
 
-*Figures 1–2*
+*Figures 2–3*
 
 - `code/eeg_emg_psd_core.py` -
 
 Log-log PSD shape correlation between EEG and EMG within 64–256 Hz band
 
-*Figure 3*
+*Figure 4*
 
 - `code/eeg_emg_xcorr_core.py` -
 
 RMS cross-correlation and lag estimation (EEG ↔ EMG)
 
-*Figure 3*
+*Figure 4*
 
 - `code/eeg_riseslope_core.py` -
 
 iRMS area and 10–90 % rise-slope computation during head deviation (versive phase)
 
-*Figure 4–5*
+*Figure 5–6*
 
 All modules are analysis-only (no patient data, plotting optional).
 
@@ -122,7 +121,6 @@ Released under the MIT License.
 If you use this code, please cite:
 Saito S, Kuramochi I, Taniguchi G, Kondo S, Tanaka H.
 Electromyographic components contaminating the scalp EEG during focal to bilateral tonic–clonic seizures as potential markers for seizure detection and lateralization: an exploratory study.
-Epilepsy Research (2025).
 
 ---
 
