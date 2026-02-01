@@ -125,7 +125,7 @@ Electromyographic components contaminating the scalp EEG during focal to bilater
 ---
 
 ### 📘 Zenodo DOI
-Zenodo DOI: 10.5281/zenodo.17421104
+Zenodo DOI: 10.5281/zenodo.17438742
 
-(https://doi.org/10.5281/zenodo.17421104)
+(https://doi.org/10.5281/zenodo.17438742)
 
